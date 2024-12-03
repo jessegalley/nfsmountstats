@@ -20,7 +20,7 @@ func TestMakeMountstats(t *testing.T) {
     t.Errorf("empty mountstats content read")
   }
 
-  mounts, err := nfsmountstats.NewMountstats(string(content))
+  mounts, err := nfsmountstats.NewMountstatsFromString(string(content))
   if err != nil {
     t.Errorf("error creating new Mountstats: %v", err)
   }
@@ -40,7 +40,7 @@ func TestGetNfsDevices(t *testing.T) {
     t.Errorf("empty mountstats content read")
   }
 
-  mounts, err := nfsmountstats.NewMountstats(string(content))
+  mounts, err := nfsmountstats.NewMountstatsFromString(string(content))
   if err != nil {
     t.Errorf("error creating new Mountstats: %v", err)
   }
@@ -78,7 +78,7 @@ func TestGetNfsDeviceMap(t *testing.T) {
     t.Errorf("empty mountstats content read")
   }
 
-  mounts, err := nfsmountstats.NewMountstats(string(content))
+  mounts, err := nfsmountstats.NewMountstatsFromString(string(content))
   if err != nil {
     t.Errorf("error creating new Mountstats: %v", err)
   }

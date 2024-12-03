@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jessegalley/nfsmountstats/internal/procfs"
 )
 
 // Mountstats struct is a representation of the content in `/proc/self/mountstats`
@@ -41,7 +42,29 @@ func (m *Mountstats) GetNFSMountMap() map[string]*MountDevice {
 // a string containing the content of `/proc/self/mountstats`, calls Parse, and 
 // returns a pointer to the new instance. 
 // Returns error if the underlying Parse() call fails.
-func NewMountstats(content string) (*Mountstats, error) {
+func NewMountstats() (*Mountstats, error) {
+  content, err  := procfs.ReadMountstats()
+  if err != nil {
+    return nil, err
+  }
+
+  if len(content) == 0 {
+    return nil, err
+  }
+
+  mounts, err := NewMountstatsFromString(string(content))
+  if err != nil {
+    return nil, err 
+  }
+
+  return mounts, nil
+}
+
+// NewMountstats constructs a new Mountstats struct from content, which should be 
+// a string containing the content of `/proc/self/mountstats`, calls Parse, and 
+// returns a pointer to the new instance. 
+// Returns error if the underlying Parse() call fails.
+func NewMountstatsFromString(content string) (*Mountstats, error) {
   mounts := Mountstats{} 
   err := mounts.Parse(content)
   if err != nil {

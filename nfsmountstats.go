@@ -78,46 +78,32 @@ func NewMountstatsFromString(content string) (*Mountstats, error) {
 // creating child structs as necessary and running all parsers needed for stats and counters.
 // Returns an error if any of the subsequent parses fails for any reason. 
 func (m *Mountstats) Parse(text string) error {
-  // i don't think there is any circumstance wherein we would actually want to 
-  // _append_ what is parsed to the existing Devices slice. We're always going 
-  // to want to update everything 
-  // i'm also not sure if this is always going to be deterministic, the slice 
-  // indexes may change for some reason im unaware of, so we can't rely on the  
-  // index to point to the same Device after re-parsing the mountstats file.
-  // m.Devices = make([]MountDevice, 0)
-  m.Devices = nil
+	m.Devices = nil
 
-  // since the `mountstats` file is a bunch of devices which all start with 
-  // the keyword `device` we will split on that to get every block of text 
-  // that represents a mounted device.
-  stringSlice := strings.Split(string(text), "device")
-  if len(stringSlice) <= 1 {
-    return errors.New("splitting mountstats content failed, unexpected length")
-  }
+	stringSlice := strings.Split(string(text), "device ")
 
-  for _, v := range stringSlice {
-    // sometimes we get blank (only whitespace) lines after splitting 
-    // we need to check for them and skip
-    if strings.TrimSpace(v) == "" { continue }
+	if len(stringSlice) <= 1 {
+		return errors.New("splitting mountstats content failed, unexpected length")
+	}
 
-    // prepend the `device` tag back onto to the string since we used it 
-    // to split the whole input 
-    v = "device" + v
+	for idx, v := range stringSlice {
+		trimmed := strings.TrimSpace(v)
+		if trimmed == "" {
+			continue
+		}
 
-    // try to create a new MountDevice instance with the text, which 
-    // will subsequently call all of the parsers for sub fields and sub 
-    // structures. A lot happens here.
-    device, err := NewMountDevice(v)
-    if err != nil {
-      // TODO: does it make sense to fail on any error here? or log & continue?
-      return fmt.Errorf("couldn't constructe new MountDevice: %v", err)
-    }
-    m.Devices = append(m.Devices, *device)
-  }
+		reconstructed := "device " + trimmed
 
-  return nil 
+		device, err := NewMountDevice(reconstructed)
+		if err != nil {
+			fmt.Printf("Error parsing device at index %d: %v\n", idx, err)
+			return fmt.Errorf("couldn't construct new MountDevice: %v", err)
+		}
+
+		m.Devices = append(m.Devices, *device)
+	}
+	return nil
 }
-
 
 // MountDevice represents a single mounted device as seen inside 
 // `/proc/self/mountstats`

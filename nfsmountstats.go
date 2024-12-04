@@ -232,11 +232,11 @@ func (i *NFSInfo) Parse(content string) error {
     switch fields[0] {
     case "age:":
       // the age of this NFS mount 
-      age, err := strconv.ParseInt(fields[1], 10, 64)
+      age, err := strconv.ParseUint(fields[1], 10, 64)
       if err != nil {
         return fmt.Errorf("failed to parse age from line: `%v` ", line)
       }
-      i.Age = uint64(age)
+      i.Age = age
     case "events:":
       // the high level NFS event counters 
       eventCounters, err := NewNFSEventCounters(line)
@@ -351,11 +351,11 @@ func (e *NFSEventCounters) ParseNFSEventCounters(eventsLine string) error {
   
   parsedInts := make([]uint64, len(fields)-1)
   for i, v := range fields[1:] {
-    parsedInt, err := strconv.ParseInt(v, 10, 64)
+    parsedInt, err := strconv.ParseUint(v, 10, 64)
     if err != nil {
       return fmt.Errorf("couldn't parse int field of `events:` line, actual attempt: %v", v)
     }
-    parsedInts[i] = uint64(parsedInt)
+    parsedInts[i] = parsedInt
   }
     // assign parsed values to struct fields, assuming at least 25 fields
     e.InodeRevalidates = parsedInts[0]
@@ -725,30 +725,30 @@ func (i *NFSInfo) ParsePerOpStats(stats []string) error {
     // loop over all of the counter values and attempt to parse the int values into out slice 
     for idx, v := range fields {
       if idx == 0 { continue }
-      converted, err := strconv.ParseInt(v, 10, 64)
+      converted, err := strconv.ParseUint(v, 10, 64)
       if err != nil {
         return fmt.Errorf("failed to parse int: %v, %v", v, err)
       }
-      intFields[idx-1] = uint64(converted)
+      intFields[idx-1] = converted
     }
     
     // trim the op code label, assign all of the parsed int values to a struct, and add this 
     // struct to the parent NFSInfo struct  
     op := strings.Trim(fields[0], ":")
     opstats := RPCOpStat{
-      Operations: uint64(intFields[0]),
-      Transmissions: uint64(intFields[1]),
-      MajorTimeouts: uint64(intFields[2]),
-      BytesSent: uint64(intFields[3]),
-      BytesReceived: uint64(intFields[4]),
-      CumQueueTime: uint64(intFields[5]) ,
-      CumRespTime: uint64(intFields[6]) ,
-      CumTotalReqTime: uint64(intFields[7]),
-      ErrStats: uint64(0),
+      Operations: intFields[0],
+      Transmissions: intFields[1],
+      MajorTimeouts: intFields[2],
+      BytesSent: intFields[3],
+      BytesReceived: intFields[4],
+      CumQueueTime: intFields[5],
+      CumRespTime: intFields[6],
+      CumTotalReqTime: intFields[7],
+      ErrStats: 0,
     }
 
     if len(intFields) >= 9 {
-      opstats.ErrStats = uint64(intFields[8])
+      opstats.ErrStats = intFields[8]
     }
 
     i.RPCOpStats[op] = opstats

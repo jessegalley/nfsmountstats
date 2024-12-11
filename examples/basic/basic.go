@@ -7,6 +7,8 @@ import (
 	"github.com/jessegalley/nfsmountstats"
 )
 
+
+
 func main() {
   // simply gather the current values for read/write throughput and ops 
   // counters and print them. nothing fancy here.
@@ -37,7 +39,7 @@ func main() {
     // READ and WRITE operations are generally all _file_ related ops, so 
     // it's the majority of what we care about here. you need to sum both 
     // bytes fields for each op to get total throughput
-    // for metadata ops, summ up the oter ops like GETATTRS SETATTRS etc 
+    // for metadata ops, sumt
     readBytes := readStats.BytesSent + readStats.BytesReceived
     writeBytes := writeStats.BytesSent + writeStats.BytesReceived
 

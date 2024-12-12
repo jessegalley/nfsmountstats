@@ -3,11 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-
 	"github.com/jessegalley/nfsmountstats"
 )
-
-
 
 func main() {
   // simply gather the current values for read/write throughput and ops 
